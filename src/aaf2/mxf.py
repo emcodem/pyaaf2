@@ -569,6 +569,8 @@ class MXFMultipleDescriptor(MXFDescriptor):
         for item in self.iter_strong_refs("FileDescriptors"):
             # if isinstance(item, MXFAES3AudioDescriptor):
             #     continue
+            if item is None:
+                continue
             d['FileDescriptors'].append(item.link())
         d['Length'].value = self.data.get('Length', 0)
 
@@ -576,7 +578,8 @@ class MXFMultipleDescriptor(MXFDescriptor):
         n['URLString'].value = ama_path(self.root.path)
         d['Locator'].append(n)
 
-        d['SampleRate'].value = self.data['SampleRate']
+        if 'SampleRate' in self.data:
+            d['SampleRate'].value = self.data['SampleRate']
 
         if self.root.ama:
             n = self.root.aaf.create.NetworkLocator()
@@ -610,7 +613,10 @@ class MXFCDCIDescriptor(MXFDescriptor):
                 d[key].value = self.data[key]
 
         for item in self.iter_strong_refs("Locator"):
-            d['Locator'].append(item.link())
+            if item is not None:
+                d['Locator'].append(item.link())
+        
+        if not len(d['Locator']):
             n = self.root.aaf.create.NetworkLocator()
             n['URLString'].value = ama_path(self.root.path)
             d['Locator'].append(n)
