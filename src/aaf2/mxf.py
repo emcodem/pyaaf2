@@ -569,6 +569,12 @@ class MXFDescriptor(MXFObject):
                 self.data['Locator'] = decode_strong_ref_array(f)
             elif tag == 0x3401:
                 self.data['PixelLayout'] = decode_pixel_layout(f)
+            elif tag == 0x3210:
+                self.data['TransferCharacteristic'] = reverse_auid(decode_auid(data)) #0x3210
+            elif tag == 0x3219:
+                self.data['ColorPrimaries'] = reverse_auid(decode_auid(data)) #0x3219
+            elif tag == 0x321a:
+                self.data['CodingEquations'] = reverse_auid(decode_auid(data)) #0x321a
 
 @register_mxf_class
 class MXFMultipleDescriptor(MXFDescriptor):
@@ -617,8 +623,8 @@ class MXFCDCIDescriptor(MXFDescriptor):
         d['Length'].value = self.data.get('Length', 0)
 
         # optional
-        for key in ('FrameSampleSize', 'ResolutionID', 'Compression', 'VerticalSubsampling',
-                    'SampledWidth', 'SampledHeight', 'LinkedSlotID'):
+        for key in ('FrameSampleSize', 'ResolutionID', 'Compression', 'VerticalSubsampling', 'TransferCharacteristic',
+                    'ColorPrimaries', 'CodingEquations', 'SampledWidth', 'SampledHeight', 'LinkedSlotID'):
             if key in self.data:
                 d[key].value = self.data[key]
 
