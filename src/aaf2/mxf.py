@@ -771,6 +771,19 @@ class MXFImportDescriptor(MXFDescriptor):
     def link(self):
         d = self.create_aaf_instance()
         n = self.root.aaf.create.NetworkLocator()
+
+        # Prefer an existing Locator already embedded in the MXF (e.g. the Avid
+        # physical-package Network Locator set by bmxtranswrap's --import
+        if ("Locator" in self.data
+            and len(self.data["Locator"]) == 1
+            and self.data["Locator"][0] in self.root.objects):
+            _loc = self.root.objects[self.data["Locator"][0]]
+            if ("URLString" in _loc.data):
+                n['URLString'].value = _loc.data["URLString"]
+                d['Locator'].append(n)
+                return d
+
+        # Fallback: no usable embedded locator -> use the MXF's own path.
         n['URLString'].value = ama_path(self.root.path)
         d['Locator'].append(n)
 
